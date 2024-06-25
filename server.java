@@ -120,85 +120,107 @@ class BinarySearchTree<T extends Comparable<T>> implements Tree<T> {
 public class server {
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = new ServerSocket(4999);
-        Socket socket = serverSocket.accept();
+        for (int i = 0; i < 8; i++) {
+            try {
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Socket socket = serverSocket.accept();
 
-        System.out.println("Client connected");
+                            System.out.println("Client connected");
 
-        InputStreamReader isr = new InputStreamReader(socket.getInputStream());
-        BufferedReader br = new BufferedReader(isr);
-        PrintWriter pr = new PrintWriter(socket.getOutputStream(),true);
+                            InputStreamReader isr = new InputStreamReader(socket.getInputStream());
+                            BufferedReader br = new BufferedReader(isr);
+                            PrintWriter pr = new PrintWriter(socket.getOutputStream(), true);
 
 
-        String command;
-        BinarySearchTree<?> tree;
-        command = br.readLine();
+                            String command;
+                            BinarySearchTree<?> tree;
+                            command = br.readLine();
 
-        switch (command) {
-            case "int":
-                tree = new BinarySearchTree<Integer>();
-                ((BinarySearchTree<Integer>) tree).insert(0);
-                break;
-            case "str":
-                tree = new BinarySearchTree<String>();
-                ((BinarySearchTree<String>) tree).insert("root");
-                break;
-            case "double":
-                tree = new BinarySearchTree<Double>();
-                ((BinarySearchTree<Double>) tree).insert(0.0);
-                break;
-            default:
-                tree = new BinarySearchTree<Integer>();
-                ((BinarySearchTree<Integer>) tree).insert(0);
-                System.out.println("Making tree int as invalid type put in");
-                pr.println("clear");
-                pr.println("Make tree of type int next time try: int, str or double");
-                break;
-        }
-        if (command.equals("str")) {
-            return;
-        }
-
-        try {
-            while ((command = br.readLine()) != null) {
-                System.out.println("client: " + command);
-                try {
-                    String[] splited = command.split("\\s+");
-                    switch (splited[0]) {
-                        case "draw":
-                            pr.println("clear");
-                            pr.println(tree.draw());
-                            break;
-                        case "search":
-                            if (tree instanceof BinarySearchTree) {
-                                pr.println("clear");
-                                pr.println("search " + searchTree(tree, splited[1]));
+                            switch (command) {
+                                case "int":
+                                    tree = new BinarySearchTree<Integer>();
+                                    ((BinarySearchTree<Integer>) tree).insert(0);
+                                    pr.println("clear");
+                                    pr.println(tree.draw());
+                                    break;
+                                case "str":
+                                    tree = new BinarySearchTree<String>();
+                                    ((BinarySearchTree<String>) tree).insert("root");
+                                    pr.println("clear");
+                                    pr.println(tree.draw());
+                                    break;
+                                case "double":
+                                    tree = new BinarySearchTree<Double>();
+                                    ((BinarySearchTree<Double>) tree).insert(0.0);
+                                    pr.println("clear");
+                                    pr.println(tree.draw());
+                                    break;
+                                default:
+                                    tree = new BinarySearchTree<Integer>();
+                                    ((BinarySearchTree<Integer>) tree).insert(0);
+                                    pr.println("clear");
+                                    pr.println(tree.draw());
+                                    System.out.println("Making tree int as invalid type put in");
+                                    pr.println("clear");
+                                    pr.println("Make tree of type int next time try: int, str or double");
+                                    break;
                             }
-                            break;
-                        case "insert":
-                            if (tree instanceof BinarySearchTree) {
-                                insertTree(tree, splited[1]);
-                                pr.println("clear");
-                                pr.println(tree.draw());
+                            try {
+                                while ((command = br.readLine()) != null) {
+                                    System.out.println("client: " + command);
+                                    try {
+                                        String[] splited = command.split("\\s+");
+                                        switch (splited[0]) {
+                                            case "draw":
+                                                pr.println("clear");
+                                                pr.println(tree.draw());
+                                                break;
+                                            case "search":
+                                                if (tree instanceof BinarySearchTree) {
+                                                    pr.println("clear");
+                                                    pr.println("search " + searchTree(tree, splited[1]));
+                                                }
+                                                break;
+                                            case "insert":
+                                                if (tree instanceof BinarySearchTree) {
+                                                    insertTree(tree, splited[1]);
+                                                    pr.println("clear");
+                                                    pr.println(tree.draw());
+                                                }
+                                                break;
+                                            case "delete":
+                                                if (tree instanceof BinarySearchTree) {
+                                                    deleteTree(tree, splited[1]);
+                                                    pr.println("clear");
+                                                    pr.println(tree.draw());
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    } catch (Exception exception) {
+                                        System.out.println("invalid command");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                System.out.println("client connection");
                             }
-                            break;
-                        case "delete":
-                            if (tree instanceof BinarySearchTree) {
-                                deleteTree(tree, splited[1]);
-                                pr.println("clear");
-                                pr.println(tree.draw());
-                            }
-                            break;
-                        default:
-                            break;
+                        }catch (IOException ioException){
+                            System.out.println("connection problem");
+                        }
                     }
-                } catch (Exception exception) {
-                    System.out.println("invalid command");
-                }
+                };
+                thread.start();
+            }catch (Exception e){
+                System.out.println("could not create socket for client");
             }
-        } catch (Exception e) {
-            System.out.println("client connection");
         }
     }
+
+        
 
     private static void insertTree(Tree<?> tree, String value) {
         if (tree instanceof BinarySearchTree) {

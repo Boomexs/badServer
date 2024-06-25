@@ -64,7 +64,7 @@ private:
         return current;
     }
 
-    void draw(std::shared_ptr<Node> root, int space = 0, int height = 10) {
+    void draw(std::shared_ptr<Node> root, int space = 0, int height = 3) {
         if (!root) return;
         space += height;
         draw(root->right, space);
